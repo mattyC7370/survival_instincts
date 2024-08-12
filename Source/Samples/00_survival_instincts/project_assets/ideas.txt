@@ -1,0 +1,51 @@
+urho3d
+Application
+scene   /// Root scene node, represents the whole scene    Is a Node
+Camera   /// scene_->CreateChild("camera")    Is a Node
+
+CreateMainObject   /// Create my cat object, .mdl for the 3d model and .xml for the "material" or "texture"
+
+
+over the shoulder camera
+
+shift = sneak (like in csgo)
+double tap ww = sprint
+space = jump
+hold xxxx = to climb (grasp) on to incoming objects
+hold xxxx = to bite incoming objects
+
+
+
+
+
+
+Concept for the Game Image:
+Central Focus:
+
+Character: Choose a few animals, such as a predator (like a lion or wolf) and prey (like a deer or rabbit). They should look dynamic and engaged in their environment.
+Environment:
+
+Backdrop: A diverse and lush ecosystem, like a jungle, savannah, or forest. Include elements such as tall trees, dense underbrush, and maybe a river or rocky terrain to reflect the game's natural setting.
+Details: Incorporate survival elements like food sources (berries, small animals), shelter (caves or nests), and threats (predators or natural obstacles).
+Action:
+
+Survival Elements: Show the animals in various survival actions—perhaps the predator stalking or hunting, and the prey running or hiding. Include dynamic poses to convey motion and tension.
+Evolution: Maybe add visual indicators of evolution or progress, such as upgraded features or abilities (e.g., a stronger-looking animal or improved camouflage).
+Style:
+
+Art Style: Depending on the tone of the game, the art style can be realistic, cartoonish, or stylized. Choose an approach that aligns with the game's theme and audience.
+UI Elements (Optional):
+
+HUD: If you want to add a game-like feel, consider including elements like a mini-map, health bars, or resource indicators in the corner of the image.
+
+
+
+
+
+
+Steps to Create a .mdl File for a Source Engine Game:
+Model Creation:
+
+Use a 3D Modeling Software: Start by creating your 3D model using a program such as Blender, 3ds Max, or Maya.
+For Source Engine models, Blender is a popular choice due to its integration with various Source tools.
+Ensure the model is properly UV-mapped, textured, and rigged if it’s animated.
