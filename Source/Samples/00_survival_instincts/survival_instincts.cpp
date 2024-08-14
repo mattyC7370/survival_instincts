@@ -58,17 +58,24 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         {
            character_->controls_.Set(CTRL_FORWARD, input->GetKeyDown(KEY_W));
            character_->controls_.Set(CTRL_BACK, input->GetKeyDown(KEY_S));
-           character_->controls_.Set(CTRL_LEFT, input->GetKeyDown(KEY_A));
-           character_->controls_.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D));
+           character_->controls_.Set(CTRL_LEFT, input->GetKeyDown(KEY_A)); ///< change this to controls.yaw
+           character_->controls_.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D)); ///< change this to controls.yaw
            character_->controls_.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
         }
 
-        //todo. 8/11 Probably going to change this
-        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * YAW_SENSITIVITY;
-        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
+        //todo. 8/14 "A" and "D" should actually turn the body mostly, not mouse -- might add a freelook button
+        //todo. commenting this line basically enables free-look
+        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
+//        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
+
+        //todo. 8/14 convert these to camera controls^^
+        Quaternion currentQuat = cameraNode_->GetRotation();
+        currentQuat.IncrementYaw((float)input->GetMouseMoveX() * 0.01f);
+        cameraNode_->SetRotation(currentQuat);
 
         // Limit pitch
-        character_->controls_.pitch_ = Clamp(character_->controls_.pitch_, -80.0f, 80.0f);
+            //todo. 8/14 dont think I care about setting the character's pitch -- Think this will be automatic
+//        character_->controls_.pitch_ = Clamp(character_->controls_.pitch_, -80.0f, 80.0f);
         // Set rotation already here so that it's updated every rendering frame instead of every physics frame
         character_->GetNode()->SetRotation(Quaternion(character_->controls_.yaw_, Vector3::UP));
 

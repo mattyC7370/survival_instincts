@@ -26,6 +26,22 @@ void Quaternion::FromAngleAxis(float angle, const Vector3& axis)
     y_ = normAxis.y_ * sinAngle;
     z_ = normAxis.z_ * sinAngle;
 }
+void Quaternion::IncrementYaw(float deltaYaw)
+{
+    // Convert quaternion to Euler angles
+    Vector3 eulerAngles = EulerAngles();
+
+    // Increment the yaw angle
+    eulerAngles.y_ += deltaYaw;
+
+    // Ensure yaw is within valid range (0 to 360 degrees)
+    eulerAngles.y_ = fmodf(eulerAngles.y_, 360.0f);
+    if (eulerAngles.y_ < 0.0f)
+        eulerAngles.y_ += 360.0f;
+
+    // Convert Euler angles back to quaternion
+    FromEulerAngles(eulerAngles.x_, eulerAngles.y_, eulerAngles.z_);
+}
 
 void Quaternion::FromEulerAngles(float x, float y, float z)
 {
