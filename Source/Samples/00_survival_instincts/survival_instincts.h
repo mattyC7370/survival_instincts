@@ -23,7 +23,11 @@ using namespace Urho3D;
 class SurvivalInstinctsApplication : public Application
 {
 public:
-    SurvivalInstinctsApplication(Context* context) : Application(context) {}
+    SurvivalInstinctsApplication(Context* context) : Application(context)
+    {
+        // Register factory and attributes for the Character component, so it can be created via CreateComponent, and loaded / saved
+        Character::RegisterObject(context);
+    }
 
     // Set window parameters such as window height and window width in pixels, and fullscreen_enable etc..
     void Setup() override;

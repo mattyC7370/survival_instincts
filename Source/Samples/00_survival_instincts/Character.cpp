@@ -91,7 +91,8 @@ void Character::FixedUpdate(float timeStep)
             {
                 body->ApplyImpulse(Vector3::UP * JUMP_FORCE);
                 okToJump_ = false;
-                animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
+                //TODO: Jump ani
+//                animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
             }
         }
         else
@@ -100,18 +101,21 @@ void Character::FixedUpdate(float timeStep)
 
     if ( !onGround_ )
     {
-        animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
+        //TODO: Jump ani
+//        animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
     }
     else
     {
         // Play walk animation if moving on ground, otherwise fade it out
-        if (softGrounded && !moveDir.Equals(Vector3::ZERO))
-            animCtrl->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, true, 0.2f);
-        else
-            animCtrl->PlayExclusive("Models/Mutant/Mutant_Idle0.ani", 0, true, 0.2f);
+        //TODO: Walk ani and idle ani
+//        if (softGrounded && !moveDir.Equals(Vector3::ZERO))
+//            animCtrl->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, true, 0.2f);
+//        else
+//            animCtrl->PlayExclusive("Models/Mutant/Mutant_Idle0.ani", 0, true, 0.2f);
 
         // Set walk animation speed proportional to velocity
-        animCtrl->SetSpeed("Models/Mutant/Mutant_Run.ani", planeVelocity.Length() * 0.3f);
+        //TODO: Walk animation speed
+//        animCtrl->SetSpeed("Models/Mutant/Mutant_Run.ani", planeVelocity.Length() * 0.3f);
     }
 
     // Reset grounded flag for next frame
