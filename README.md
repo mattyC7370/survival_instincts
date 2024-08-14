@@ -1,7 +1,7 @@
 
 # Urho3D
-#**** WEE WOO WEE WOO ****___ To compile in windows use MSVC and certainly not MinGW. Also set CMAKE options to
-#-DURHO3D_PCH=0 -G Ninja -DUSE_CCASHE=0
+# **** WEE WOO WEE WOO ****___ To compile in windows use MSVC and certainly not MinGW. Also set CMAKE options to
+# -DURHO3D_PCH=0 -G Ninja -DUSE_CCASHE=0
 
 ![](/Source/Samples/00_survival_instincts/project_assets/openart-2be4e0b851184665b503af1cb8f40519_raw.png)
 
