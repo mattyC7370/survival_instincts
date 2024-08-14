@@ -1,10 +1,10 @@
+![](/Source/Samples/00_survival_instincts/project_assets/openart-2be4e0b851184665b503af1cb8f40519_raw.png)
 
 # Urho3D
 # **** WEE WOO WEE WOO ****___ To compile in windows use MSVC and certainly not MinGW. Also set CMAKE options to 
 -DURHO3D_PCH=0 -G Ninja -DUSE_CCASHE=0
 
 
-![](/Source/Samples/00_survival_instincts/project_assets/openart-2be4e0b851184665b503af1cb8f40519_raw.png)
 
 [![CI/CD](https://github.com/urho3d/Urho3D/workflows/CI/CD/badge.svg)](https://github.com/urho3d/Urho3D/actions?query=workflow%3ACI%2FCD)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/4954/badge.svg)](https://scan.coverity.com/projects/urho3d-urho3d)
