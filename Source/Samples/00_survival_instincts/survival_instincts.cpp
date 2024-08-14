@@ -1,15 +1,19 @@
 #include "survival_instincts.h"
+#include "Urho3D/Core/CoreEvents.h"
 #include "Urho3D/Graphics/AnimatedModel.h"
 #include "Urho3D/Graphics/Animation.h"
 #include "Urho3D/Graphics/AnimationState.h"
 #include "Urho3D/Graphics/RenderPath.h"
+#include "Urho3D/Input/Input.h"
+#include "Urho3D/Physics/CollisionShape.h"
+#include "Urho3D/Physics/PhysicsWorld.h"
+#include "Urho3D/Physics/RigidBody.h"
+#include "Urho3D/UI/Font.h"
 #include "Urho3D/UI/Text.h"
 #include "Urho3D/UI/UI.h"
-#include "Urho3D/UI/Font.h"
-#include "Urho3D/Core/CoreEvents.h"
-#include "Urho3D/Input/Input.h"
-#include "Urho3D/Physics/RigidBody.h"
-#include "Urho3D/Physics/CollisionShape.h"
+const float CAMERA_MIN_DIST = 1.0f;
+const float CAMERA_INITIAL_DIST = 5.0f;
+const float CAMERA_MAX_DIST = 20.0f;
 
 void SurvivalInstinctsApplication::Setup()
 {
@@ -75,6 +79,45 @@ void SurvivalInstinctsApplication::SubscribeToEvents()
 {
     // Subscribe to Update event for setting the character controls before physics simulation
     SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(SurvivalInstinctsApplication, HandleUpdate));
+
+    // Subscribe to PostUpdate event for updating the camera position after physics simulation
+    SubscribeToEvent(E_POSTUPDATE, URHO3D_HANDLER(SurvivalInstinctsApplication, HandlePostUpdate));
+
+    // Unsubscribe the SceneUpdate event from base class as the camera node is being controlled in HandlePostUpdate() in this sample
+    UnsubscribeFromEvent(E_SCENEUPDATE);
+}
+
+void SurvivalInstinctsApplication::HandlePostUpdate(StringHash eventType, VariantMap& eventData)
+{
+    if (!character_)
+        return;
+
+    Node* characterNode = character_->GetNode();
+
+    //TODO: better over the shoulder camera
+    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -18.0f) + characterNode->GetPosition());
+
+//    cameraNode_->SetRotation(dir);
+
+    // Get camera lookat dir from character yaw + pitch
+//    const Quaternion& rot = characterNode->GetRotation();
+//    Quaternion dir = rot * Quaternion(character_->controls_.pitch_, Vector3::RIGHT);
+//
+//    // Third person camera: position behind the character
+//    Vector3 aimPoint = characterNode->GetPosition() + rot * Vector3(0.0f, 1.7f, 0.0f);
+//
+//    // Collide camera ray with static physics objects (layer bitmask 2) to ensure we see the character properly
+//    Vector3 rayDir = dir * Vector3::BACK;
+//    // Ensure touch_ is a valid pointer and cameraDistance_ is a member of the type pointed to by touch_
+//    float rayDistance = CAMERA_INITIAL_DIST;
+//    PhysicsRaycastResult result;
+//    scene_->GetComponent<PhysicsWorld>()->RaycastSingle(result, Ray(aimPoint, rayDir), rayDistance, 2);
+//    if (result.body_)
+//       rayDistance = Min(rayDistance, result.distance_);
+//    rayDistance = Clamp(rayDistance, CAMERA_MIN_DIST, CAMERA_MAX_DIST);
+
+//    cameraNode_->SetPosition(aimPoint + rayDir * rayDistance);
+//    cameraNode_->SetRotation(dir);
 
 }
 

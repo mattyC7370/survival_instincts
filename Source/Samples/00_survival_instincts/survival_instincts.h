@@ -17,6 +17,7 @@
 #include <Urho3D/Resource/XMLFile.h>
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Scene/Scene.h>
+#include <Urho3D/Scene/SceneEvents.h>
 
 using namespace Urho3D;
 
@@ -57,6 +58,9 @@ public:
 private:
     /// Handle application update. Set controls to character.
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
+
+    /// Handle application post-update. Update camera position after character has moved.
+    void HandlePostUpdate(StringHash eventType, VariantMap& eventData);
 
     Scene* scene_{nullptr};
     Node* cameraNode_{nullptr};
