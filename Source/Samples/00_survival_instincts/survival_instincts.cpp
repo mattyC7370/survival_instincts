@@ -19,8 +19,8 @@ const float CAMERA_MAX_DIST = 20.0f;
 
 void SurvivalInstinctsApplication::Setup()
 {
-    engineParameters_[EP_WINDOW_WIDTH] = 1600;
-    engineParameters_[EP_WINDOW_HEIGHT] = 900;
+    engineParameters_[EP_WINDOW_WIDTH] = 3000;
+    engineParameters_[EP_WINDOW_HEIGHT] = 1600;
     engineParameters_[EP_WINDOW_RESIZABLE] = true;
     engineParameters_[EP_WINDOW_TITLE] = "Survival Instincts";
     engineParameters_[EP_FULL_SCREEN]  = false;
@@ -68,11 +68,13 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
            character_->controls_.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
         }
 
+        //todo. When running, make fov higher -- push camera back a bit. Hold shift to walk
+
         //todo. 8/14 "A" and "D" should actually turn the body mostly, not mouse -- might add a freelook button
         //todo. 8/14 Add camera orbiting
         //todo. 8/14 Add turn speed
         //todo. commenting this line basically enables free-look
-//        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
+        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
 //        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
 
         //todo. 8/14 convert these to camera controls^^
@@ -109,7 +111,7 @@ void SurvivalInstinctsApplication::HandlePostUpdate(StringHash eventType, Varian
     Node* characterNode = character_->GetNode();
 
     //TODO: better over the shoulder camera
-    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -18.0f) + characterNode->GetPosition());
+    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -26.0f) + characterNode->GetPosition());
 
 //    cameraNode_->SetRotation(dir);
 
@@ -252,10 +254,16 @@ void SurvivalInstinctsApplication::CreateMainObject()
 
     auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
     modelObject->SetModel(cache->GetResource<Model>("Models/cat/cat.mdl"));
-    modelNode->SetScale(Vector3(0.025f, 0.025f, 0.025f)); // Scales the model to .25 its original size
+    modelNode->SetScale(Vector3(0.035f, 0.035f, 0.035f)); // Scales the model to .25 its original size
 
     modelObject->SetMaterial(cache->GetResource<Material>("Models/Kachujin/Materials/Kachujin.xml"));
     modelObject->SetCastShadows(true);
+
+
+    // Create the character logic component, which takes care of steering the rigidbody
+    // Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
+    // and keeps it alive as long as it's not removed from the hierarchy
+    character_ = modelNode->CreateComponent<Character>();
 
     // Create rigidbody, and set non-zero mass so that the body becomes dynamic
     auto* body = modelNode->CreateComponent<RigidBody>();
@@ -271,12 +279,9 @@ void SurvivalInstinctsApplication::CreateMainObject()
 
     // Set a capsule shape for collision
     auto* shape = modelNode->CreateComponent<CollisionShape>();
-//    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f)); /// Probably going to need to adjust this
-    shape->SetSphere(20.0f);
+    //    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f)); /// Probably going to need to adjust this
+    Node* characterNode = character_->GetNode();
+    shape->SetSphere(20.0f,characterNode->GetPosition()- Vector3(0.0f, 55.0f, 0.0f));
 
-    // Create the character logic component, which takes care of steering the rigidbody
-    // Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
-    // and keeps it alive as long as it's not removed from the hierarchy
-    character_ = modelNode->CreateComponent<Character>();
 
 }
