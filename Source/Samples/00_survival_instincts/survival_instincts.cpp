@@ -2,6 +2,7 @@
 #include "Urho3D/Core/CoreEvents.h"
 #include "Urho3D/Graphics/AnimatedModel.h"
 #include "Urho3D/Graphics/Animation.h"
+#include "Urho3D/Graphics/AnimationController.h"
 #include "Urho3D/Graphics/AnimationState.h"
 #include "Urho3D/Graphics/RenderPath.h"
 #include "Urho3D/Graphics/Skybox.h"
@@ -247,70 +248,46 @@ void SurvivalInstinctsApplication::SetupViewport()
 
 void SurvivalInstinctsApplication::CreateMainObject()
 {
-    auto* cache = GetSubsystem<ResourceCache>();
+    auto* oCache = GetSubsystem<ResourceCache>();
 
-    Node* modelNode = scene_->CreateChild("Bean");
-    modelNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 32.7f, Random(40.0f) - 20.0f));
-    modelNode->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
+    /// Adjust object node position and size
+    Node* objectNode = scene_->CreateChild("Bean");
+    objectNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 32.7f, Random(40.0f) - 20.0f));
+    objectNode->SetScale(Vector3(0.047f, 0.047f, 0.047f)); // Scales the model to .25 its original size
+//    objectNode->SetScale(Vector3(3.0f, 3.0f, 3.0f));  ///\note. for ninja
 
-    auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
-    modelObject->SetModel(cache->GetResource<Model>("Models/cat/cat.mdl"));
-    modelNode->SetScale(Vector3(0.047f, 0.047f, 0.047f)); // Scales the model to .25 its original size
+    /// Instantiate a child of object node, and adjust it's rotation
+    Node* adjustNode = objectNode->CreateChild("AdjNode");
+    adjustNode->SetRotation( Quaternion(180, Vector3(1,0,0) ) );
+    adjustNode->SetRotation( Quaternion(180, Vector3(0,1,0) ) );
 
-//    modelObject->SetMaterial(cache->GetResource<Material>("Models/cat/cat.xml"));
+    /// Instantiate a child of adjust node called model object. Create the rendering component + animation controller
+    auto* modelObject = adjustNode->CreateComponent<AnimatedModel>();
+    modelObject->SetModel(oCache->GetResource<Model>("Models/cat/cat.mdl"));
+    modelObject->SetMaterial(oCache->GetResource<Material>("Materials/NinjaSnowWar/Ninja.xml"));
+
     modelObject->SetCastShadows(true);
+    adjustNode->CreateComponent<AnimationController>();
 
-
-    // Load or create a 3D texture
-    SharedPtr<Texture3D> texture(new Texture3D(context_));
-    File file(context_, "Models/cat/texture_0.png");
-
-    // Load texture data from an image or other source
-    Image image(context_);
-    if (image.Load(file)) // Ensure the image is in the correct format
-    {
-        texture->SetSize(image.GetWidth(), image.GetHeight(), 16, Graphics::GetRGBFormat(), TEXTURE_STATIC);
-        texture->SetData(&image); // Set data as appropriate for 3D texture
-    }
-    else
-    {
-        URHO3D_LOGERROR("Failed to load 3D texture.");
-    }
-
-    // Create a material
-    SharedPtr<Material> material(new Material(context_));
-
-    // Load the XML file containing material definitions
-//    SharedPtr<XMLFile> xmlFile(new XMLFile(context_));
-//    xmlFile->LoadFile("Materials/YourMaterial.xml");
-//
-//    // Load or create a material XML file
-//    material->LoadXML("<material_file>");
-
-    // Set the 3D texture to a texture unit (usually defined in the shader)
-    material->SetTexture(TextureUnit::TU_DIFFUSE, texture); // Set your texture unit
-
-    modelObject->SetMaterial(material);
-
-    // Create the character logic component, which takes care of steering the rigidbody
-    // Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
-    // and keeps it alive as long as it's not removed from the hierarchy
-    character_ = modelNode->CreateComponent<Character>();
-
-    // Create rigidbody, and set non-zero mass so that the body becomes dynamic
-    auto* body = modelNode->CreateComponent<RigidBody>();
+    /// Create rigidbody, and set non-zero mass so that the body becomes dynamic
+    auto* body = objectNode->CreateComponent<RigidBody>();
     body->SetCollisionLayer(1);
     body->SetMass(1.0f);
 
-    // Set zero angular factor so that physics doesn't turn the character on its own.
-    // Instead, we will control the character yaw manually
+    /// Set zero angular factor so that physics doesn't turn the character on its own. Instead, we will control the character yaw manually
     body->SetAngularFactor(Vector3::ZERO);
 
-    // Set the rigidbody to signal collision also when in rest, so that we get ground collisions properly
+    /// Set the rigidbody to signal collision also when in rest, so that we get ground collisions properly
     body->SetCollisionEventMode(COLLISION_ALWAYS);
 
-    // Set a capsule shape for collision
-    auto* shape = modelNode->CreateComponent<CollisionShape>();
+
+    /// Create the character logic component, which takes care of steering the rigidbody
+    /// Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
+    /// and keeps it alive as long as it's not removed from the hierarchy
+    character_ = objectNode->CreateComponent<Character>();
+
+    /// Set a capsule shape for collision
+    auto* shape = objectNode->CreateComponent<CollisionShape>();
     //    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f)); /// Probably going to need to adjust this
     Node* characterNode = character_->GetNode();
     shape->SetSphere(20.0f,characterNode->GetPosition()- Vector3(0.0f, 55.0f, 0.0f));
