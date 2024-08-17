@@ -4,6 +4,8 @@
 #include "Urho3D/Graphics/Animation.h"
 #include "Urho3D/Graphics/AnimationState.h"
 #include "Urho3D/Graphics/RenderPath.h"
+#include "Urho3D/Graphics/Skybox.h"
+#include "Urho3D/Graphics/Terrain.h"
 #include "Urho3D/Input/Input.h"
 #include "Urho3D/Physics/CollisionShape.h"
 #include "Urho3D/Physics/PhysicsWorld.h"
@@ -29,6 +31,9 @@ void SurvivalInstinctsApplication::Setup()
 void SurvivalInstinctsApplication::Start()
 {
    CreateScene();
+
+   /// Render da cat
+   CreateMainObject();
 
    // Setup the viewport for displaying the scene
    SetupViewport();
@@ -64,6 +69,8 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         }
 
         //todo. 8/14 "A" and "D" should actually turn the body mostly, not mouse -- might add a freelook button
+        //todo. 8/14 Add camera orbiting
+        //todo. 8/14 Add turn speed
         //todo. commenting this line basically enables free-look
         character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
 //        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
@@ -158,26 +165,14 @@ void SurvivalInstinctsApplication::CreateScene()
     scene_->CreateComponent<Octree>();
     scene_->CreateComponent<DebugRenderer>();
 
-    // Create scene node & StaticModel component for showing a static plane
-    Node* planeNode = scene_->CreateChild("Plane");
-    planeNode->SetScale(Vector3(50.0f, 1.0f, 50.0f));
-    auto* planeObject = planeNode->CreateComponent<StaticModel>();
-    planeObject->SetModel(cache->GetResource<Model>("Models/Plane.mdl"));
-    planeObject->SetMaterial(cache->GetResource<Material>("Materials/Terrain.xml"));
-    ///turn on collision
-    auto* body = planeNode->CreateComponent<RigidBody>();
-    body->SetCollisionLayer(2);
-    auto* shape = planeNode->CreateComponent<CollisionShape>();
-    shape->SetBox(Vector3::ONE);
-
     // Create a Zone component for ambient lighting & fog control
     Node* zoneNode = scene_->CreateChild("Zone");
     auto* zone = zoneNode->CreateComponent<Zone>();
     zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
     zone->SetAmbientColor(Color(0.5f, 0.5f, 0.5f));
-    zone->SetFogColor(Color(0.4f, 0.5f, 0.8f));
-    zone->SetFogStart(100.0f);
-    zone->SetFogEnd(300.0f);
+    zone->SetFogColor(Color(0.031f, 0.2f, 0.031f));
+    zone->SetFogStart(300.0f);
+    zone->SetFogEnd(700.0f);
 
     // Create a directional light to the world. Enable cascaded shadows on it
     Node* lightNode = scene_->CreateChild("DirectionalLight");
@@ -190,16 +185,43 @@ void SurvivalInstinctsApplication::CreateScene()
     // Set cascade splits at 10, 50 and 200 world units, fade shadows out at 80% of maximum shadow distance
     light->SetShadowCascade(CascadeParameters(10.0f, 50.0f, 200.0f, 0.0f, 0.8f));
 
+    // Create skybox. The Skybox component is used like StaticModel, but it will be always located at the camera, giving the
+    // illusion of the box planes being far away. Use just the ordinary Box model and a suitable material, whose shader will
+    // generate the necessary 3D texture coordinates for cube mapping
+    Node* skyNode = scene_->CreateChild("Sky");
+    skyNode->SetScale(500.0f); // The scale actually does not matter
+    auto* skybox = skyNode->CreateComponent<Skybox>();
+    skybox->SetModel(cache->GetResource<Model>("Models/Box.mdl"));
+    skybox->SetMaterial(cache->GetResource<Material>("Materials/Skybox.xml"));
+
+    // Create heightmap terrain
+    Node* terrainNode = scene_->CreateChild("Terrain");
+    terrainNode->SetPosition(Vector3::ZERO);
+    auto* terrain = terrainNode->CreateComponent<Terrain>();
+    terrain->SetPatchSize(64);
+    terrain->SetSpacing(Vector3(2.0f, 1.0f, 2.0f)); // Spacing between vertices and vertical resolution of the height map
+    terrain->SetSmoothing(true);
+    terrain->SetHeightMap(cache->GetResource<Image>("Textures/third_terrain.png"));
+    terrain->SetMaterial(cache->GetResource<Material>("Materials/Terrain.xml"));
+    // The terrain consists of large triangles, which fits well for occlusion rendering, as a hill can occlude all
+    // terrain patches and other objects behind it
+    terrain->SetOccluder(true);
+
+    auto* body = terrainNode->CreateComponent<RigidBody>();
+    body->SetCollisionLayer(2); // Use layer bitmask 2 for static geometry
+    auto* shape = terrainNode->CreateComponent<CollisionShape>();
+    shape->SetTerrain();
+
+
     // Create the camera. Limit far clip distance to match the fog
     cameraNode_ = scene_->CreateChild("Camera");
     auto* camera = cameraNode_->CreateComponent<Camera>();
-    camera->SetFarClip(300.0f);
+    camera->SetFarClip(1000.0f);
 
     // Set an initial position for the camera scene node above the plane
     cameraNode_->SetPosition(Vector3(0.0f, 8.0f, -40.0f));
     cameraNode_->SetRotation(Quaternion(10.0f, 0.0f, 0.0f));
 
-    CreateMainObject();
 }
 
 void SurvivalInstinctsApplication::SetupViewport()
@@ -225,7 +247,7 @@ void SurvivalInstinctsApplication::CreateMainObject()
     auto* cache = GetSubsystem<ResourceCache>();
 
     Node* modelNode = scene_->CreateChild("Bean");
-    modelNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 0.7f, Random(40.0f) - 20.0f));
+    modelNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 32.7f, Random(40.0f) - 20.0f));
     modelNode->SetRotation(Quaternion(0.0f, 180.0f, 0.0f));
 
     auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
@@ -249,7 +271,8 @@ void SurvivalInstinctsApplication::CreateMainObject()
 
     // Set a capsule shape for collision
     auto* shape = modelNode->CreateComponent<CollisionShape>();
-    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f)); /// Probably going to need to adjust this
+//    shape->SetCapsule(0.7f, 1.8f, Vector3(0.0f, 0.9f, 0.0f)); /// Probably going to need to adjust this
+    shape->SetSphere(20.0f);
 
     // Create the character logic component, which takes care of steering the rigidbody
     // Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it

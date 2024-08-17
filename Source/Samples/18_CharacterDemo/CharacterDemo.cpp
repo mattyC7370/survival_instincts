@@ -313,7 +313,7 @@ void CharacterDemo::HandleUpdate(StringHash eventType, VariantMap& eventData)
                 // After loading we have to reacquire the weak pointer to the Character component, as it has been recreated
                 // Simply find the character's scene node by name as there's only one of them
                 Node* characterNode = scene_->GetChild("Jack", true);
-                if (characterNode)
+                if (characterNode)1
                     character_ = characterNode->GetComponent<Character>();
             }
         }
