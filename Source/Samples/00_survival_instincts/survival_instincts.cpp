@@ -13,8 +13,6 @@
 #include "Urho3D/Physics/PhysicsWorld.h"
 #include "Urho3D/Physics/RigidBody.h"
 #include "Urho3D/UI/Font.h"
-#include "Urho3D/UI/Text.h"
-#include "Urho3D/UI/UI.h"
 const float CAMERA_MIN_DIST = 1.0f;
 const float CAMERA_INITIAL_DIST = 5.0f;
 const float CAMERA_MAX_DIST = 20.0f;
@@ -90,6 +88,17 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
 //        character_->controls_.pitch_ = Clamp(character_->controls_.pitch_, -80.0f, 80.0f);
         // Set rotation already here so that it's updated every rendering frame instead of every physics frame
         character_->GetNode()->SetRotation(Quaternion(character_->controls_.yaw_, Vector3::UP));
+
+
+
+        /// velocity debug
+        auto* cache = GetSubsystem<ResourceCache>();
+        velocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        velocityDebugText_->SetTextAlignment(HA_LEFT);
+
+        velocityDebugText_->SetText(String(character_->GetComponent<RigidBody>()->GetLinearVelocity().x_));
+        velocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 2.0);
+
 
     }
 }
@@ -277,7 +286,7 @@ void SurvivalInstinctsApplication::CreateMainObject()
 
     /// Adjust object node position and size
     Node* objectNode = scene_->CreateChild("Bean");
-    objectNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 32.7f, Random(40.0f) - 20.0f));
+    objectNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 31.65f, Random(40.0f) - 20.0f));
     objectNode->SetScale(Vector3(0.047f, 0.047f, 0.047f)); // Scales the model to .25 its original size
 //    objectNode->SetScale(Vector3(3.0f, 3.0f, 3.0f));  ///\note. for ninja
 

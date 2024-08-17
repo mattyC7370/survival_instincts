@@ -18,6 +18,9 @@
 #include <Urho3D/Scene/Node.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
+#include "Urho3D/UI/Text.h"
+#include "Urho3D/UI/UI.h"
+#include "Urho3D/UI/Font.h"
 
 using namespace Urho3D;
 
@@ -28,6 +31,15 @@ public:
     {
         // Register factory and attributes for the Character component, so it can be created via CreateComponent, and loaded / saved
         Character::RegisterObject(context);
+
+        // Construct new Text object, set string to display and font to use
+        auto* ui = GetSubsystem<UI>();
+        auto* cache = GetSubsystem<ResourceCache>();
+        velocityDebugText_ = ui->GetRoot()->CreateChild<Text>();
+        velocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        velocityDebugText_->SetTextAlignment(HA_LEFT);
+        velocityDebugText_->SetColor(Color(1.0f, 0.0f, 0.0f)); // RGB color (Red)
+
     }
 
     // Set window parameters such as window height and window width in pixels, and fullscreen_enable etc..
@@ -67,6 +79,8 @@ private:
 
     /// The controllable character component.
     WeakPtr<Character> character_;
+
+    Text* velocityDebugText_{nullptr};
 };
 
 URHO3D_DEFINE_APPLICATION_MAIN(SurvivalInstinctsApplication)
