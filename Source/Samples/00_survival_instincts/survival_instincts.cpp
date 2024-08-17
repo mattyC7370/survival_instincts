@@ -107,6 +107,11 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         zVelocityDebugText_->SetTextAlignment(HA_LEFT);
         zVelocityDebugText_->SetText(String(character_->GetComponent<RigidBody>()->GetLinearVelocity().z_));
         zVelocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 1.8);
+
+        linearVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 28.5);
+        linearVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        linearVelocityDebugText_->SetText(String(sqrt(pow(character_->GetComponent<RigidBody>()->GetLinearVelocity().x_,2) + pow(character_->GetComponent<RigidBody>()->GetLinearVelocity().y_,2) + pow(character_->GetComponent<RigidBody>()->GetLinearVelocity().z_,2))));
+        linearVelocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 18, ui->GetRoot()->GetHeight() / 2.14);
     }
 }
 
