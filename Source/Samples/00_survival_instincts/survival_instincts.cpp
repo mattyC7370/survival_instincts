@@ -72,7 +72,7 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         //todo. 8/14 Add camera orbiting
         //todo. 8/14 Add turn speed
         //todo. commenting this line basically enables free-look
-        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
+//        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
 //        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
 
         //todo. 8/14 convert these to camera controls^^
@@ -169,9 +169,9 @@ void SurvivalInstinctsApplication::CreateScene()
     Node* zoneNode = scene_->CreateChild("Zone");
     auto* zone = zoneNode->CreateComponent<Zone>();
     zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
-    zone->SetAmbientColor(Color(0.5f, 0.5f, 0.5f));
-    zone->SetFogColor(Color(0.031f, 0.2f, 0.031f));
-    zone->SetFogStart(300.0f);
+    zone->SetAmbientColor(Color(0.3f, 0.3f, 0.3f));
+    zone->SetFogColor(Color(0.741f, 0.769f, 0.741f));
+    zone->SetFogStart(100.0f);
     zone->SetFogEnd(700.0f);
 
     // Create a directional light to the world. Enable cascaded shadows on it
@@ -216,7 +216,7 @@ void SurvivalInstinctsApplication::CreateScene()
     // Create the camera. Limit far clip distance to match the fog
     cameraNode_ = scene_->CreateChild("Camera");
     auto* camera = cameraNode_->CreateComponent<Camera>();
-    camera->SetFarClip(1000.0f);
+    camera->SetFarClip(1500.0f);
 
     // Set an initial position for the camera scene node above the plane
     cameraNode_->SetPosition(Vector3(0.0f, 8.0f, -40.0f));
