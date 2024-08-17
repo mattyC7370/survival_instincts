@@ -35,11 +35,20 @@ public:
         // Construct new Text object, set string to display and font to use
         auto* ui = GetSubsystem<UI>();
         auto* cache = GetSubsystem<ResourceCache>();
-        velocityDebugText_ = ui->GetRoot()->CreateChild<Text>();
-        velocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
-        velocityDebugText_->SetTextAlignment(HA_LEFT);
-        velocityDebugText_->SetColor(Color(1.0f, 0.0f, 0.0f)); // RGB color (Red)
+        xVelocityDebugText_ = ui->GetRoot()->CreateChild<Text>();
+        xVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        xVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        xVelocityDebugText_->SetColor(Color(1.0f, 0.0f, 0.0f)); // RGB color (Red)
 
+        yVelocityDebugText_ = ui->GetRoot()->CreateChild<Text>();
+        yVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        yVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        yVelocityDebugText_->SetColor(Color(0.0f, 1.0f, 0.0f)); // RGB color (Green)
+
+        zVelocityDebugText_ = ui->GetRoot()->CreateChild<Text>();
+        zVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        zVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        zVelocityDebugText_->SetColor(Color(0.0f, 0.0f, 1.0f)); // RGB color (Blue)
     }
 
     // Set window parameters such as window height and window width in pixels, and fullscreen_enable etc..
@@ -80,7 +89,9 @@ private:
     /// The controllable character component.
     WeakPtr<Character> character_;
 
-    Text* velocityDebugText_{nullptr};
+    Text* xVelocityDebugText_{nullptr};
+    Text* yVelocityDebugText_{nullptr};
+    Text* zVelocityDebugText_{nullptr};
 };
 
 URHO3D_DEFINE_APPLICATION_MAIN(SurvivalInstinctsApplication)

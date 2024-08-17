@@ -93,13 +93,20 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
 
         /// velocity debug
         auto* cache = GetSubsystem<ResourceCache>();
-        velocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
-        velocityDebugText_->SetTextAlignment(HA_LEFT);
+        xVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        xVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        xVelocityDebugText_->SetText(String(character_->GetComponent<RigidBody>()->GetLinearVelocity().x_));
+        xVelocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 2.0);
 
-        velocityDebugText_->SetText(String(character_->GetComponent<RigidBody>()->GetLinearVelocity().x_));
-        velocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 2.0);
+        yVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        yVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        yVelocityDebugText_->SetText(String(character_->GetComponent<RigidBody>()->GetLinearVelocity().y_));
+        yVelocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 1.9);
 
-
+        zVelocityDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        zVelocityDebugText_->SetTextAlignment(HA_LEFT);
+        zVelocityDebugText_->SetText(String(character_->GetComponent<RigidBody>()->GetLinearVelocity().z_));
+        zVelocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 1.8);
     }
 }
 
