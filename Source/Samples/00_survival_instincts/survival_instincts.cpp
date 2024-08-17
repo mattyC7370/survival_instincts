@@ -57,7 +57,7 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
     if (character_)
     {
         // Clear previous controls
-        character_->controls_.Set(CTRL_FORWARD | CTRL_BACK | CTRL_LEFT | CTRL_RIGHT | CTRL_JUMP, false);
+        character_->controls_.Set(CTRL_FORWARD | CTRL_BACK | CTRL_LEFT | CTRL_RIGHT | CTRL_JUMP | CTRL_PROWL, false);
 
         // Update controls using keys
         auto* ui = GetSubsystem<UI>();
@@ -68,6 +68,7 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
            character_->controls_.Set(CTRL_LEFT, input->GetKeyDown(KEY_A)); ///< change this to controls.yaw
            character_->controls_.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D)); ///< change this to controls.yaw
            character_->controls_.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
+           character_->controls_.Set(CTRL_PROWL, input->GetKeyDown(KEY_SHIFT));
         }
 
         //todo. When running, make fov higher -- push camera back a bit. Hold shift to walk
@@ -141,20 +142,44 @@ void SurvivalInstinctsApplication::HandlePostUpdate(StringHash eventType, Varian
 
 void SurvivalInstinctsApplication::CreateInstructions()
 {
+    ///\todo. pictures of keyboard keys
+    ///\todo. text starts off in middle before moving left
     auto* cache = GetSubsystem<ResourceCache>();
     auto* ui = GetSubsystem<UI>();
 
     // Construct new Text object, set string to display and font to use
     auto* instructionText = ui->GetRoot()->CreateChild<Text>();
     instructionText->SetText("Use WASD keys to move\n");
-    instructionText->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 12);
+    instructionText->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 16.5);
     // The text has multiple rows. Center them in relation to each other
     instructionText->SetTextAlignment(HA_LEFT);
 
     // Position the text relative to the screen center
-    instructionText->SetHorizontalAlignment(HA_CENTER);
+    instructionText->SetHorizontalAlignment(HA_LEFT);
     instructionText->SetVerticalAlignment(VA_CENTER);
-    instructionText->SetPosition(0, ui->GetRoot()->GetHeight() / 4);
+    instructionText->SetPosition(ui->GetRoot()->GetWidth() / 20, ui->GetRoot()->GetHeight() / 3.0);
+
+    auto* instructionText2 = ui->GetRoot()->CreateChild<Text>();
+    instructionText2->SetText("Hold shift to prowl\n");
+    instructionText2->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 16.5);
+    // The text has multiple rows. Center them in relation to each other
+    instructionText2->SetTextAlignment(HA_LEFT);
+
+    // Position the text relative to the screen center
+    instructionText2->SetHorizontalAlignment(HA_LEFT);
+    instructionText2->SetVerticalAlignment(VA_CENTER);
+    instructionText2->SetPosition(ui->GetRoot()->GetWidth() / 20, ui->GetRoot()->GetHeight() / 2.7);
+
+    auto* instructionText3 = ui->GetRoot()->CreateChild<Text>();
+    instructionText3->SetText("Hold ctrl to sprint\n");
+    instructionText3->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 16.5);
+    // The text has multiple rows. Center them in relation to each other
+    instructionText3->SetTextAlignment(HA_LEFT);
+
+    // Position the text relative to the screen center
+    instructionText3->SetHorizontalAlignment(HA_LEFT);
+    instructionText3->SetVerticalAlignment(VA_CENTER);
+    instructionText3->SetPosition(ui->GetRoot()->GetWidth() / 20, ui->GetRoot()->GetHeight() / 2.43);
 
 }
 

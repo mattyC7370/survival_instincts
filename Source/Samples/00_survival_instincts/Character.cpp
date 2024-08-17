@@ -3,12 +3,14 @@
 
 #include <Urho3D/Core/Context.h>
 #include <Urho3D/Graphics/AnimationController.h>
+#include <Urho3D/IO/Log.h>
 #include <Urho3D/IO/MemoryBuffer.h>
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
+#include <string>
 
 #include "Character.h"
 
@@ -70,6 +72,14 @@ void Character::FixedUpdate(float timeStep)
         moveDir += Vector3::LEFT;
     if (controls_.IsDown(CTRL_RIGHT))
         moveDir += Vector3::RIGHT;
+    if (controls_.IsDown(CTRL_PROWL))
+    {
+//        planeVelocity = planeVelocity * Vector3(planeVelocity.x_ *1.1, 0.0f, planeVelocity.z_);
+//        URHO3D_LOGINFO("Run key pressed!");
+        URHO3D_LOGINFO("Linear_Velocity=x|" + String(velocity.x_) + "   y|" +String(velocity.y_)  + "   z|" + String(velocity.z_));
+        body->SetLinearVelocity(body->GetLinearVelocity() * 0.935);
+    }
+
 
     // Normalize move vector so that diagonal strafing is not faster
     if (moveDir.LengthSquared() > 0.0f)
