@@ -264,7 +264,7 @@ void SurvivalInstinctsApplication::CreateMainObject()
     /// Instantiate a child of adjust node called model object. Create the rendering component + animation controller
     auto* modelObject = adjustNode->CreateComponent<AnimatedModel>();
     modelObject->SetModel(oCache->GetResource<Model>("Models/cat/cat.mdl"));
-    modelObject->SetMaterial(oCache->GetResource<Material>("Materials/NinjaSnowWar/Ninja.xml"));
+    modelObject->SetMaterial(oCache->GetResource<Material>("Materials/cat/cat.xml"));
 
     modelObject->SetCastShadows(true);
     adjustNode->CreateComponent<AnimationController>();
