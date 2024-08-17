@@ -6,6 +6,7 @@
 #include "Urho3D/Graphics/RenderPath.h"
 #include "Urho3D/Graphics/Skybox.h"
 #include "Urho3D/Graphics/Terrain.h"
+#include "Urho3D/GraphicsAPI/Texture3D.h"
 #include "Urho3D/Input/Input.h"
 #include "Urho3D/Physics/CollisionShape.h"
 #include "Urho3D/Physics/PhysicsWorld.h"
@@ -111,7 +112,7 @@ void SurvivalInstinctsApplication::HandlePostUpdate(StringHash eventType, Varian
     Node* characterNode = character_->GetNode();
 
     //TODO: better over the shoulder camera
-    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -26.0f) + characterNode->GetPosition());
+    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -31.0f) + characterNode->GetPosition());
 
 //    cameraNode_->SetRotation(dir);
 
@@ -254,11 +255,42 @@ void SurvivalInstinctsApplication::CreateMainObject()
 
     auto* modelObject = modelNode->CreateComponent<AnimatedModel>();
     modelObject->SetModel(cache->GetResource<Model>("Models/cat/cat.mdl"));
-    modelNode->SetScale(Vector3(0.035f, 0.035f, 0.035f)); // Scales the model to .25 its original size
+    modelNode->SetScale(Vector3(0.047f, 0.047f, 0.047f)); // Scales the model to .25 its original size
 
-    modelObject->SetMaterial(cache->GetResource<Material>("Models/Kachujin/Materials/Kachujin.xml"));
+//    modelObject->SetMaterial(cache->GetResource<Material>("Models/cat/cat.xml"));
     modelObject->SetCastShadows(true);
 
+
+    // Load or create a 3D texture
+    SharedPtr<Texture3D> texture(new Texture3D(context_));
+    File file(context_, "Models/cat/texture_0.png");
+
+    // Load texture data from an image or other source
+    Image image(context_);
+    if (image.Load(file)) // Ensure the image is in the correct format
+    {
+        texture->SetSize(image.GetWidth(), image.GetHeight(), 16, Graphics::GetRGBFormat(), TEXTURE_STATIC);
+        texture->SetData(&image); // Set data as appropriate for 3D texture
+    }
+    else
+    {
+        URHO3D_LOGERROR("Failed to load 3D texture.");
+    }
+
+    // Create a material
+    SharedPtr<Material> material(new Material(context_));
+
+    // Load the XML file containing material definitions
+//    SharedPtr<XMLFile> xmlFile(new XMLFile(context_));
+//    xmlFile->LoadFile("Materials/YourMaterial.xml");
+//
+//    // Load or create a material XML file
+//    material->LoadXML("<material_file>");
+
+    // Set the 3D texture to a texture unit (usually defined in the shader)
+    material->SetTexture(TextureUnit::TU_DIFFUSE, texture); // Set your texture unit
+
+    modelObject->SetMaterial(material);
 
     // Create the character logic component, which takes care of steering the rigidbody
     // Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
