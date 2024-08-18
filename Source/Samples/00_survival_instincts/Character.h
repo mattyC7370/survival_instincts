@@ -14,10 +14,10 @@ const unsigned CTRL_LEFT = 4;
 const unsigned CTRL_RIGHT = 8;
 const unsigned CTRL_JUMP = 16;
 const unsigned CTRL_PROWL = 32;
+const unsigned CTRL_SPRINT = 64;
 
 const float MOVE_FORCE = 0.8f;
 const float INAIR_MOVE_FORCE = 0.02f;
-const float BRAKE_FORCE = 0.06f;  ///< this determines maximum linear velocity on the ground
 const float JUMP_FORCE = 7.0f;
 const float YAW_SENSITIVITY = 0.1f;
 const float INAIR_THRESHOLD_TIME = 0.1f;
@@ -52,4 +52,6 @@ private:
     bool okToJump_;
     /// In air timer. Due to possible physics inaccuracy, character can be off ground for max. 1/10 second and still be allowed to move.
     float inAirTimer_;
+
+    float fBreakForce_{0.06f};  ///< this determines maximum linear velocity on the ground
 };

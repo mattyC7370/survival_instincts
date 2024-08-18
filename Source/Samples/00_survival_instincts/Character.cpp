@@ -74,11 +74,17 @@ void Character::FixedUpdate(float timeStep)
         moveDir += Vector3::RIGHT;
     if (controls_.IsDown(CTRL_PROWL))
     {
-//        planeVelocity = planeVelocity * Vector3(planeVelocity.x_ *1.1, 0.0f, planeVelocity.z_);
-//        URHO3D_LOGINFO("Run key pressed!");
-        URHO3D_LOGINFO("Linear_Velocity=x|" + String(velocity.x_) + "   y|" +String(velocity.y_)  + "   z|" + String(velocity.z_));
         body->SetLinearVelocity(body->GetLinearVelocity() * 0.935);
     }
+    if (controls_.IsDown(CTRL_SPRINT))
+    {
+        fBreakForce_ = 0.01f;
+    }
+    else
+    {
+        fBreakForce_ = 0.06f;
+    }
+
 
 
     // Normalize move vector so that diagonal strafing is not faster
@@ -91,7 +97,7 @@ void Character::FixedUpdate(float timeStep)
     if (softGrounded)
     {
         // When on ground, apply a braking force to limit maximum ground velocity
-        Vector3 brakeForce = -planeVelocity * BRAKE_FORCE;
+        Vector3 brakeForce = -planeVelocity * fBreakForce_;
         body->ApplyImpulse(brakeForce);
 
         // Jump. Must release jump control between jumps

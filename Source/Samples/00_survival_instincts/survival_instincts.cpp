@@ -67,6 +67,7 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
            character_->controls_.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D)); ///< change this to controls.yaw
            character_->controls_.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
            character_->controls_.Set(CTRL_PROWL, input->GetKeyDown(KEY_SHIFT));
+           character_->controls_.Set(CTRL_SPRINT, input->GetKeyDown(KEY_CTRL));
         }
 
         //todo. When running, make fov higher -- push camera back a bit. Hold shift to walk
