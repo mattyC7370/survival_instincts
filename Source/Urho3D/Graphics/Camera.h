@@ -240,6 +240,11 @@ public:
     /// Return clipping plane attribute.
     Vector4 GetClipPlaneAttr() const;
 
+    // Store the initial camera position and orientation relative to the character node
+    Vector3 initialCameraOffset;
+    Quaternion initialCameraOrientation;
+
+
 protected:
     /// Handle node being assigned.
     void OnNodeSet(Node* node) override;

@@ -71,25 +71,28 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         }
 
         //todo. When running, make fov higher -- push camera back a bit. Hold shift to walk
-
         //todo. 8/14 "A" and "D" should actually turn the body mostly, not mouse -- might add a freelook button
         //todo. 8/14 Add camera orbiting
         //todo. 8/14 Add turn speed
         //todo. commenting this line basically enables free-look
-        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
 //        character_->controls_.pitch_ += (float)input->GetMouseMoveY() * YAW_SENSITIVITY;
 
-        //todo. 8/14 convert these to camera controls^^
-        Quaternion currentQuat = cameraNode_->GetRotation();
-        currentQuat.IncrementYaw((float)input->GetMouseMoveX() * 0.01f);
-        cameraNode_->SetRotation(currentQuat);
 
-        // Limit pitch
-            //todo. 8/14 dont think I care about setting the character's pitch -- Think this will be automatic
-//        character_->controls_.pitch_ = Clamp(character_->controls_.pitch_, -80.0f, 80.0f);
-        // Set rotation already here so that it's updated every rendering frame instead of every physics frame
+
+        /// Character x rotation
+        character_->controls_.yaw_ += (float)input->GetMouseMoveX() * 0.03f;
         character_->GetNode()->SetRotation(Quaternion(character_->controls_.yaw_, Vector3::UP));
 
+
+        /// Camera x rotation               Just make it stronger or weaker based on dot product between camera angle and character angle
+        Quaternion currentQuat = cameraNode_->GetRotation();
+        float dotProduct = currentQuat.DotProduct(character_->GetNode()->GetRotation());
+        currentQuat.IncrementYaw((float)input->GetMouseMoveX() * 0.01 * 1/pow(std::abs(dotProduct),17));
+        cameraNode_->SetRotation(currentQuat);
+
+        /// Camera position                Just make it stronger or weaker based on dot product between camera angle and character angle
+        Vector3 newCameraPosition = character_->GetNode()->GetPosition() + (cameraNode_->GetRotation() * cameraNode_->GetComponent<Camera>()->initialCameraOffset);
+        cameraNode_->SetPosition(Vector3(newCameraPosition.x_,character_->GetNode()->GetPosition().y_ + 8.0f,newCameraPosition.z_));
 
 
         /// velocity debug
@@ -136,7 +139,7 @@ void SurvivalInstinctsApplication::HandlePostUpdate(StringHash eventType, Varian
     Node* characterNode = character_->GetNode();
 
     //TODO: better over the shoulder camera
-    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -31.0f) + characterNode->GetPosition());
+//    cameraNode_->SetPosition(Vector3(2.8f, 8.0f, -31.0f) + characterNode->GetPosition());
 
 //    cameraNode_->SetRotation(dir);
 
@@ -270,7 +273,7 @@ void SurvivalInstinctsApplication::CreateScene()
     camera->SetFarClip(1500.0f);
 
     // Set an initial position for the camera scene node above the plane
-    cameraNode_->SetPosition(Vector3(0.0f, 8.0f, -40.0f));
+    cameraNode_->SetPosition(Vector3(1.54341388f, 39.6500015f, -50.9499512f));
     cameraNode_->SetRotation(Quaternion(10.0f, 0.0f, 0.0f));
 
 }
@@ -299,7 +302,7 @@ void SurvivalInstinctsApplication::CreateMainObject()
 
     /// Adjust object node position and size
     Node* objectNode = scene_->CreateChild("Bean");
-    objectNode->SetPosition(Vector3(Random(40.0f) - 23.8f, 31.65f, Random(40.0f) - 20.0f));
+    objectNode->SetPosition(Vector3(-1.25658607f, 31.65f, -19.9499493f));
     objectNode->SetScale(Vector3(0.047f, 0.047f, 0.047f)); // Scales the model to .25 its original size
 //    objectNode->SetScale(Vector3(3.0f, 3.0f, 3.0f));  ///\note. for ninja
 
@@ -339,5 +342,8 @@ void SurvivalInstinctsApplication::CreateMainObject()
     Node* characterNode = character_->GetNode();
     shape->SetSphere(20.0f,characterNode->GetPosition()- Vector3(0.0f, 55.0f, 0.0f));
 
+    // Store the initial camera position and orientation relative to the character node
+    cameraNode_->GetComponent<Camera>()->initialCameraOffset = (cameraNode_->GetPosition() - objectNode->GetPosition());
+    cameraNode_->GetComponent<Camera>()->initialCameraOrientation = (cameraNode_->GetRotation() - objectNode->GetRotation());
 
 }
