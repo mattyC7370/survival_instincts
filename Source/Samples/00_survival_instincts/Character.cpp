@@ -142,7 +142,7 @@ void Character::FixedUpdate(float timeStep)
             {
                 body->ApplyImpulse(Vector3::UP * JUMP_FORCE);
                 okToJump_ = false;
-                jumpTimer_ = 0.2f;
+                jumpTimer_ = 1.0f;
                 // TODO: Jump animation
             }
         }
@@ -151,6 +151,12 @@ void Character::FixedUpdate(float timeStep)
             okToJump_ = true;
         }
     }
+
+    if (!onGround_ && jumpTimer_ <= 0)  // Apply damping when in air and not during jump grace period
+    {
+        body->ApplyImpulse(Vector3::DOWN * (MOVE_FORCE/3));
+    }
+
 
     // Reset grounded flag for next frame
     onGround_ = false;
@@ -195,32 +201,12 @@ void Character::AdjustRigidBodyProperties()
         body->SetFriction(1.0f);  // Increase friction
         body->SetRollingFriction(1.0f);  // Add rolling friction
         body->SetRestitution(0.0f);  // Remove bounciness
-
-        // Add custom linear velocity damping
-        SubscribeToEvent(GetNode(), E_PHYSICSPRESTEP, URHO3D_HANDLER(Character, HandlePhysicsPreStep));
     }
 
     auto* shape = GetComponent<CollisionShape>();
     if (shape)
     {
         shape->SetMargin(0.01f);  // Reduce collision margin
-    }
-
-}
-
-void Character::HandlePhysicsPreStep(StringHash eventType, VariantMap& eventData)
-{
-    auto* body = GetComponent<RigidBody>();
-    if (body && !onGround_ && jumpTimer_ <= 0)  // Apply damping when in air and not during jump grace period
-    {
-        Vector3 velocity = body->GetLinearVelocity();
-        float dampingFactor = 0.1f; // Adjust this value to control the strength of the damping
-        float timestep = eventData[PhysicsPreStep::P_TIMESTEP].GetFloat();
-
-        // Apply damping to Y velocity when in air
-        velocity.y_ *= (1.0f - dampingFactor * timestep);
-
-        body->SetLinearVelocity(velocity);
     }
 }
 
