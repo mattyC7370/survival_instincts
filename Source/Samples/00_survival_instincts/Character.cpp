@@ -152,6 +152,7 @@ void Character::FixedUpdate(float timeStep)
         }
     }
 
+    ///\ todo. Can make this better by applying force normal to ground instead of just a down vector
     if (!onGround_ && jumpTimer_ <= 0)  // Apply damping when in air and not during jump grace period
     {
         body->ApplyImpulse(Vector3::DOWN * (MOVE_FORCE/3));

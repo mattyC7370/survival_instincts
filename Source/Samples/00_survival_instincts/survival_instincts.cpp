@@ -66,8 +66,8 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
            character_->controls_.Set(CTRL_LEFT, input->GetKeyDown(KEY_A)); ///< change this to controls.yaw
            character_->controls_.Set(CTRL_RIGHT, input->GetKeyDown(KEY_D)); ///< change this to controls.yaw
            character_->controls_.Set(CTRL_JUMP, input->GetKeyDown(KEY_SPACE));
-           character_->controls_.Set(CTRL_PROWL, input->GetKeyDown(KEY_SHIFT));
-           character_->controls_.Set(CTRL_SPRINT, input->GetKeyDown(KEY_CTRL));
+           character_->controls_.Set(CTRL_PROWL, input->GetKeyDown(KEY_CTRL));
+           character_->controls_.Set(CTRL_SPRINT, input->GetKeyDown(KEY_SHIFT));
         }
 
         //todo. When running, make fov higher -- push camera back a bit. Hold shift to walk
@@ -193,7 +193,7 @@ void SurvivalInstinctsApplication::CreateInstructions()
     instructionText->SetPosition(ui->GetRoot()->GetWidth() / 20, ui->GetRoot()->GetHeight() / 3.0);
 
     auto* instructionText2 = ui->GetRoot()->CreateChild<Text>();
-    instructionText2->SetText("Hold shift to prowl\n");
+    instructionText2->SetText("Hold ctrl to prowl\n");
     instructionText2->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 16.5);
     // The text has multiple rows. Center them in relation to each other
     instructionText2->SetTextAlignment(HA_LEFT);
@@ -204,7 +204,7 @@ void SurvivalInstinctsApplication::CreateInstructions()
     instructionText2->SetPosition(ui->GetRoot()->GetWidth() / 20, ui->GetRoot()->GetHeight() / 2.7);
 
     auto* instructionText3 = ui->GetRoot()->CreateChild<Text>();
-    instructionText3->SetText("Hold ctrl to sprint\n");
+    instructionText3->SetText("Hold shift to sprint\n");
     instructionText3->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 16.5);
     // The text has multiple rows. Center them in relation to each other
     instructionText3->SetTextAlignment(HA_LEFT);
