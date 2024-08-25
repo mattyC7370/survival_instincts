@@ -335,6 +335,7 @@ void SurvivalInstinctsApplication::CreateMainObject()
     /// Remember it so that we can set the controls. Use a WeakPtr because the scene hierarchy already owns it
     /// and keeps it alive as long as it's not removed from the hierarchy
     character_ = objectNode->CreateComponent<Character>();
+    character_->AdjustRigidBodyProperties();
 
     /// Set a capsule shape for collision
     auto* shape = objectNode->CreateComponent<CollisionShape>();

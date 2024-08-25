@@ -8,17 +8,20 @@
 #include <Urho3D/Physics/PhysicsEvents.h>
 #include <Urho3D/Physics/PhysicsWorld.h>
 #include <Urho3D/Physics/RigidBody.h>
+#include <Urho3D/Physics/CollisionShape.h>
 #include <Urho3D/Scene/Scene.h>
 #include <Urho3D/Scene/SceneEvents.h>
 #include <string>
-
+#include <Urho3D/Physics/PhysicsWorld.h>
+#include <Urho3D/Math/Ray.h>
 #include "Character.h"
 
 Character::Character(Context* context) :
     LogicComponent(context),
     onGround_(false),
     okToJump_(true),
-    inAirTimer_(0.0f)
+    inAirTimer_(0.0f),
+    jumpTimer_(0.0f)  // New timer for jump grace period
 {
     // Only the physics update event is needed: unsubscribe from the rest for optimization
     SetUpdateEventMask(LogicComponentEvents::FixedUpdate);
@@ -54,8 +57,19 @@ void Character::FixedUpdate(float timeStep)
         inAirTimer_ += timeStep;
     else
         inAirTimer_ = 0.0f;
+
+    // Update jump timer
+    if (jumpTimer_ > 0)
+        jumpTimer_ -= timeStep;
+
     // When character has been in air less than 1/10 second, it's still interpreted as being on ground
     bool softGrounded = inAirTimer_ < INAIR_THRESHOLD_TIME;
+
+    // Apply downward force to "stick" the character to the ground
+    if (softGrounded)
+    {
+        body->ApplyForce(Vector3::DOWN * STICK_FORCE);
+    }
 
     // Update movement & animation
     const Quaternion& rot = node_->GetRotation();
@@ -82,10 +96,8 @@ void Character::FixedUpdate(float timeStep)
     }
     else
     {
-        fBreakForce_ = 0.06f;
+        fBreakForce_ = 0.03f;
     }
-
-
 
     // Normalize move vector so that diagonal strafing is not faster
     if (moveDir.LengthSquared() > 0.0f)
@@ -107,32 +119,17 @@ void Character::FixedUpdate(float timeStep)
             {
                 body->ApplyImpulse(Vector3::UP * JUMP_FORCE);
                 okToJump_ = false;
+                jumpTimer_ = 0.2f;
                 //TODO: Jump ani
 //                animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
             }
         }
         else
+        {
             okToJump_ = true;
+        }
     }
 
-    if ( !onGround_ )
-    {
-        //TODO: Jump ani
-//        animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
-    }
-    else
-    {
-        // Play walk animation if moving on ground, otherwise fade it out
-        //TODO: Walk ani and idle ani
-//        if (softGrounded && !moveDir.Equals(Vector3::ZERO))
-//            animCtrl->PlayExclusive("Models/Mutant/Mutant_Run.ani", 0, true, 0.2f);
-//        else
-//            animCtrl->PlayExclusive("Models/Mutant/Mutant_Idle0.ani", 0, true, 0.2f);
-
-        // Set walk animation speed proportional to velocity
-        //TODO: Walk animation speed
-//        animCtrl->SetSpeed("Models/Mutant/Mutant_Run.ani", planeVelocity.Length() * 0.3f);
-    }
 
     // Reset grounded flag for next frame
     onGround_ = false;
@@ -161,3 +158,50 @@ void Character::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
         }
     }
 }
+
+// Add this method to be called after character creation
+void Character::AdjustRigidBodyProperties()
+{
+    auto* body = GetComponent<RigidBody>();
+    if (body)
+    {
+        body->SetMass(1.0f);  // Adjust mass as needed
+        body->SetLinearDamping(0.0f);  // Set overall linear damping to 0
+        body->SetAngularDamping(0.5f);  // Add some angular damping
+
+        // Allow full movement in all directions
+        body->SetLinearFactor(Vector3::ONE);
+
+        body->SetFriction(1.0f);  // Increase friction
+        body->SetRollingFriction(1.0f);  // Add rolling friction
+        body->SetRestitution(0.0f);  // Remove bounciness
+
+        // Add custom linear velocity damping
+        SubscribeToEvent(GetNode(), E_PHYSICSPRESTEP, URHO3D_HANDLER(Character, HandlePhysicsPreStep));
+    }
+
+    auto* shape = GetComponent<CollisionShape>();
+    if (shape)
+    {
+        shape->SetMargin(0.01f);  // Reduce collision margin
+    }
+
+}
+
+void Character::HandlePhysicsPreStep(StringHash eventType, VariantMap& eventData)
+{
+    auto* body = GetComponent<RigidBody>();
+    if (body && !onGround_ && jumpTimer_ <= 0)  // Apply damping when in air and not during jump grace period
+    {
+        Vector3 velocity = body->GetLinearVelocity();
+        float dampingFactor = 0.1f; // Adjust this value to control the strength of the damping
+        float timestep = eventData[PhysicsPreStep::P_TIMESTEP].GetFloat();
+
+        // Apply damping to Y velocity when in air
+        velocity.y_ *= (1.0f - dampingFactor * timestep);
+
+        body->SetLinearVelocity(velocity);
+    }
+}
+
+

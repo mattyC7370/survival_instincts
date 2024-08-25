@@ -18,9 +18,10 @@ const unsigned CTRL_SPRINT = 64;
 
 const float MOVE_FORCE = 0.8f;
 const float INAIR_MOVE_FORCE = 0.02f;
-const float JUMP_FORCE = 7.0f;
+const float JUMP_FORCE = 9.0f;
 const float YAW_SENSITIVITY = 0.1f;
-const float INAIR_THRESHOLD_TIME = 0.1f;
+const float INAIR_THRESHOLD_TIME = 0.10f;
+const float STICK_FORCE = 40.0f;
 
 /// Character component, responsible for physical movement according to controls, as well as animation.
 class Character : public LogicComponent
@@ -39,6 +40,10 @@ public:
     /// Handle physics world update. Called by LogicComponent base class.
     void FixedUpdate(float timeStep) override;
 
+    /// Add this method to be called after character creation
+    void AdjustRigidBodyProperties();
+    void HandlePhysicsPreStep(StringHash eventType, VariantMap& eventData);
+
     /// Movement controls. Assigned by the main program each frame.
     Controls controls_;
 
@@ -53,5 +58,8 @@ private:
     /// In air timer. Due to possible physics inaccuracy, character can be off ground for max. 1/10 second and still be allowed to move.
     float inAirTimer_;
 
-    float fBreakForce_{0.06f};  ///< this determines maximum linear velocity on the ground
+    float fBreakForce_{0.03f};  ///< this determines maximum linear velocity on the ground
+    float jumpTimer_;
+
+
 };
