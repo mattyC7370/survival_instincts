@@ -46,6 +46,7 @@ public:
 
     /// Movement controls. Assigned by the main program each frame.
     Controls controls_;
+    float CalculateUphillAngle();
 
 private:
     /// Handle physics collision event.

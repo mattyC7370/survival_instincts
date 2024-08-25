@@ -48,21 +48,18 @@ void Character::Start()
 
 void Character::FixedUpdate(float timeStep)
 {
-    /// \todo Could cache the components for faster access instead of finding them each frame
     auto* body = GetComponent<RigidBody>();
     auto* animCtrl = node_->GetComponent<AnimationController>(true);
 
-    // Update the in air timer. Reset if grounded
+    // Update timers
     if (!onGround_)
         inAirTimer_ += timeStep;
     else
         inAirTimer_ = 0.0f;
 
-    // Update jump timer
     if (jumpTimer_ > 0)
         jumpTimer_ -= timeStep;
 
-    // When character has been in air less than 1/10 second, it's still interpreted as being on ground
     bool softGrounded = inAirTimer_ < INAIR_THRESHOLD_TIME;
 
     // Apply downward force to "stick" the character to the ground
@@ -71,13 +68,13 @@ void Character::FixedUpdate(float timeStep)
         body->ApplyForce(Vector3::DOWN * STICK_FORCE);
     }
 
-    // Update movement & animation
+    // Update movement
     const Quaternion& rot = node_->GetRotation();
     Vector3 moveDir = Vector3::ZERO;
     const Vector3& velocity = body->GetLinearVelocity();
-    // Velocity on the XZ plane
     Vector3 planeVelocity(velocity.x_, 0.0f, velocity.z_);
 
+    // Handle input
     if (controls_.IsDown(CTRL_FORWARD))
         moveDir += Vector3::FORWARD;
     if (controls_.IsDown(CTRL_BACK))
@@ -88,31 +85,57 @@ void Character::FixedUpdate(float timeStep)
         moveDir += Vector3::RIGHT;
     if (controls_.IsDown(CTRL_PROWL))
     {
-        body->SetLinearVelocity(body->GetLinearVelocity() * 0.935);
-    }
-    if (controls_.IsDown(CTRL_SPRINT))
-    {
-        fBreakForce_ = 0.01f;
+        fBreakForce_ = 0.12f;
     }
     else
     {
-        fBreakForce_ = 0.03f;
+        if (controls_.IsDown(CTRL_SPRINT))
+        {
+            fBreakForce_ = 0.04f;
+        }
+        else
+        {
+            fBreakForce_ = 0.06f;
+        }
     }
+
 
     // Normalize move vector so that diagonal strafing is not faster
     if (moveDir.LengthSquared() > 0.0f)
         moveDir.Normalize();
 
-    // If in air, allow control, but slower than when on ground
-    body->ApplyImpulse(rot * moveDir * (softGrounded ? MOVE_FORCE : INAIR_MOVE_FORCE));
+    // Calculate slope
+    Vector3 slopeNormal = Vector3::UP;
+    PhysicsRaycastResult result;
+    Ray ray(node_->GetPosition(), Vector3::DOWN);
+    GetScene()->GetComponent<PhysicsWorld>()->RaycastSingle(result, ray, 1.5f);
+    if (result.body_)
+    {
+        slopeNormal = result.normal_;
+    }
+    float slopeAngle = acosf(slopeNormal.DotProduct(Vector3::UP));
+
+    // Calculate the desired velocity
+    float desiredSpeed = softGrounded ? MOVE_FORCE / fBreakForce_ : INAIR_MOVE_FORCE / fBreakForce_;
+    Vector3 desiredVelocity = rot * moveDir * desiredSpeed;
+
+    // Calculate the velocity difference
+    Vector3 velocityDiff = desiredVelocity - planeVelocity;
+
+    // Adjust force based on slope and velocity difference
+    float slopeMultiplier = 1.0f + slopeAngle * 2.0f; // Increase force on steeper slopes
+    Vector3 force = velocityDiff * (softGrounded ? MOVE_FORCE * slopeMultiplier : INAIR_MOVE_FORCE);
+
+    // Apply movement force
+    body->ApplyImpulse(force);
 
     if (softGrounded)
     {
-        // When on ground, apply a braking force to limit maximum ground velocity
+        // Apply a braking force to limit maximum ground velocity
         Vector3 brakeForce = -planeVelocity * fBreakForce_;
         body->ApplyImpulse(brakeForce);
 
-        // Jump. Must release jump control between jumps
+        // Handle jumping
         if (controls_.IsDown(CTRL_JUMP))
         {
             if (okToJump_)
@@ -120,8 +143,7 @@ void Character::FixedUpdate(float timeStep)
                 body->ApplyImpulse(Vector3::UP * JUMP_FORCE);
                 okToJump_ = false;
                 jumpTimer_ = 0.2f;
-                //TODO: Jump ani
-//                animCtrl->PlayExclusive("Models/Mutant/Mutant_Jump1.ani", 0, false, 0.2f);
+                // TODO: Jump animation
             }
         }
         else
@@ -130,11 +152,9 @@ void Character::FixedUpdate(float timeStep)
         }
     }
 
-
     // Reset grounded flag for next frame
     onGround_ = false;
 }
-
 void Character::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {
     // Check collision contacts and see if character is standing on ground (look for a contact that has near vertical normal)
@@ -204,4 +224,36 @@ void Character::HandlePhysicsPreStep(StringHash eventType, VariantMap& eventData
     }
 }
 
+float Character::CalculateUphillAngle()
+{
+    auto* physicsWorld = GetScene()->GetComponent<PhysicsWorld>();
+    if (!physicsWorld)
+    {
+        URHO3D_LOGERROR("PhysicsWorld not found");
+        return 0.0f;
+    }
 
+    Vector3 characterPos = node_->GetPosition();
+    Vector3 downDirection = Vector3::DOWN;
+    float rayDistance = 1.5f; // Adjust based on your character's height
+
+    PhysicsRaycastResult result;
+    physicsWorld->RaycastSingle(result, Ray(characterPos, downDirection), rayDistance);
+
+    if (result.body_)
+    {
+        Vector3 surfaceNormal = result.normal_;
+        float dotProduct = surfaceNormal.DotProduct(Vector3::UP);
+        float angleRadians = acosf(dotProduct);
+        float angleDegrees = angleRadians * M_RADTODEG;
+
+        // Debug output
+        URHO3D_LOGDEBUG("Surface normal: " + surfaceNormal.ToString());
+        URHO3D_LOGDEBUG("Uphill angle: " + String(angleDegrees) + " degrees");
+
+        return angleRadians; // Return angle in radians
+    }
+
+    // If raycast didn't hit anything, assume flat ground
+    return 0.0f;
+}

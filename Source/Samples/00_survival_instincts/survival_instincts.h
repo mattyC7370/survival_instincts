@@ -49,6 +49,10 @@ public:
         linearVelocityDebugText_ = ui->GetRoot()->CreateChild<Text>();
         linearVelocityDebugText_->SetTextAlignment(HA_LEFT);
         linearVelocityDebugText_->SetColor(Color(0.65f, 0.4f, 0.65f)); // RGB color (Blue)
+
+        upHillAngleDebugText_ = ui->GetRoot()->CreateChild<Text>();
+        upHillAngleDebugText_->SetTextAlignment(HA_LEFT);
+        upHillAngleDebugText_->SetColor(Color(0.75f, 0.2f, 0.7f)); // RGB color (Blue)
     }
 
     // Set window parameters such as window height and window width in pixels, and fullscreen_enable etc..
@@ -93,6 +97,7 @@ private:
     Text* xVelocityDebugText_{nullptr};
     Text* yVelocityDebugText_{nullptr};
     Text* zVelocityDebugText_{nullptr};
+    Text* upHillAngleDebugText_{nullptr};
 };
 
 URHO3D_DEFINE_APPLICATION_MAIN(SurvivalInstinctsApplication)

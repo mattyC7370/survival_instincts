@@ -116,6 +116,14 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         linearVelocityDebugText_->SetTextAlignment(HA_LEFT);
         linearVelocityDebugText_->SetText(String(sqrt(pow(character_->GetComponent<RigidBody>()->GetLinearVelocity().x_,2) + pow(character_->GetComponent<RigidBody>()->GetLinearVelocity().y_,2) + pow(character_->GetComponent<RigidBody>()->GetLinearVelocity().z_,2))));
         linearVelocityDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 18, ui->GetRoot()->GetHeight() / 2.14);
+
+        /// Uphill angle debug
+        upHillAngleDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 23.5);
+        upHillAngleDebugText_->SetTextAlignment(HA_LEFT);
+        upHillAngleDebugText_->SetText(String(character_->CalculateUphillAngle()));
+        upHillAngleDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 1.3);
+
+
     }
 }
 
