@@ -235,8 +235,8 @@ float Character::CalculateUphillAngle()
         float angleDegrees = angleRadians * M_RADTODEG;
 
         // Debug output
-        URHO3D_LOGDEBUG("Surface normal: " + surfaceNormal.ToString());
-        URHO3D_LOGDEBUG("Uphill angle: " + String(angleDegrees) + " degrees");
+//        URHO3D_LOGDEBUG("Surface normal: " + surfaceNormal.ToString());
+//        URHO3D_LOGDEBUG("Uphill angle: " + String(angleDegrees) + " degrees");
 
         return angleRadians; // Return angle in radians
     }

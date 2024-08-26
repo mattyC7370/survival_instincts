@@ -123,6 +123,13 @@ void SurvivalInstinctsApplication::HandleUpdate(StringHash eventType, VariantMap
         upHillAngleDebugText_->SetText(String(character_->CalculateUphillAngle()));
         upHillAngleDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 15, ui->GetRoot()->GetHeight() / 1.3);
 
+        /// Sprint selection debug
+        sprintSelectionDebugText_->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 44.5);
+        sprintSelectionDebugText_->SetTextEffect(TE_SHADOW);
+        sprintSelectionDebugText_->SetText(String(">>"));
+        sprintSelectionDebugText_->SetPosition(ui->GetRoot()->GetWidth() / 2.6, ui->GetRoot()->GetHeight() / 1.95);
+
+
 
     }
 }
