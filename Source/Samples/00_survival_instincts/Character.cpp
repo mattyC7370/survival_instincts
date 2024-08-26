@@ -89,9 +89,24 @@ void Character::FixedUpdate(float timeStep)
     }
     else
     {
+        if(controls_.IsPressed(CTRL_SPRINT,prevControls_))
+        {
+            if(framesSinceLastPress_ <10) /// 10 frames to double press-- should be enough
+            {
+                URHO3D_LOGERROR("Super Sprint Detected");
+                bSuperSprintState_ = true;
+            }
+            framesSinceLastPress_ = 0;
+        }
+        else
+        {
+            framesSinceLastPress_++;
+        }
+
         if (controls_.IsDown(CTRL_SPRINT))
         {
             fBreakForce_ = 0.032f;
+            framesSinceLastPress_ = 0;
         }
         else
         {
@@ -161,6 +176,8 @@ void Character::FixedUpdate(float timeStep)
 
     // Reset grounded flag for next frame
     onGround_ = false;
+
+    prevControls_ = controls_;
 }
 void Character::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {

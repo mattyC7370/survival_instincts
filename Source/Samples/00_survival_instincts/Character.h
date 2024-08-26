@@ -42,7 +42,6 @@ public:
 
     /// Add this method to be called after character creation
     void AdjustRigidBodyProperties();
-    void HandlePhysicsPreStep(StringHash eventType, VariantMap& eventData);
 
     /// Movement controls. Assigned by the main program each frame.
     Controls controls_;
@@ -62,5 +61,9 @@ private:
     float fBreakForce_{0.03f};  ///< this determines maximum linear velocity on the ground
     float jumpTimer_;
 
+
+    int framesSinceLastPress_{100};
+    Controls prevControls_;
+    bool bSuperSprintState_{false};
 
 };
