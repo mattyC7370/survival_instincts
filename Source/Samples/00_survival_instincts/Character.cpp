@@ -178,15 +178,22 @@ void Character::FixedUpdate(float timeStep)
     ///\ todo. Can make this better by applying force normal to ground instead of just a down vector
     if (!onGround_ && jumpTimer_ <= 0)  // Apply damping when in air and not during jump grace period
     {
-        body->ApplyImpulse(Vector3::DOWN * (MOVE_FORCE/3));
+        if(bSuperSprintState_)
+        {
+            body->ApplyImpulse(Vector3::DOWN * MOVE_FORCE*.8);
+        }
+        else
+        {
+            body->ApplyImpulse(Vector3::DOWN * (MOVE_FORCE/3));
+        }
     }
-
 
     // Reset grounded flag for next frame
     onGround_ = false;
 
     prevControls_ = controls_;
 }
+
 void Character::HandleNodeCollision(StringHash eventType, VariantMap& eventData)
 {
     // Check collision contacts and see if character is standing on ground (look for a contact that has near vertical normal)
