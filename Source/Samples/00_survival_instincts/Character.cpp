@@ -91,7 +91,7 @@ void Character::FixedUpdate(float timeStep)
     {
         if (controls_.IsDown(CTRL_SPRINT))
         {
-            fBreakForce_ = 0.04f;
+            fBreakForce_ = 0.032f;
         }
         else
         {
