@@ -105,12 +105,20 @@ void Character::FixedUpdate(float timeStep)
 
         if (controls_.IsDown(CTRL_SPRINT))
         {
-            fBreakForce_ = 0.032f;
+            if(bSuperSprintState_)
+            {
+                fBreakForce_ = 0.017f;
+            }
+            else
+            {
+                fBreakForce_ = 0.032f;
+            }
             framesSinceLastPress_ = 0;
         }
         else
         {
             fBreakForce_ = 0.06f;
+            bSuperSprintState_ = false;
         }
     }
 
